@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="#ffff"
+    android:layout_height="match_parent"
+    tools:context=".RegistrationPage">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/regilogo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:hint="VKN3-1F10-TEMY-9LNH"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/background"
+        android:textColorHint="#AAAAAA"
+        android:textColor="@color/black"
+        android:paddingLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:id="@+id/serialkey"
+        android:layout_marginLeft="20dp"
+        />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/serialkey"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+
+        android:id="@+id/validkey"
+        android:text="Check Key "/>
+</RelativeLayout>
