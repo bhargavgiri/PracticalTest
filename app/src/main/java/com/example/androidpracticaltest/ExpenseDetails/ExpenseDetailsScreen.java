@@ -1,6 +1,5 @@
 package com.example.androidpracticaltest.ExpenseDetails;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
@@ -8,8 +7,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -20,7 +19,6 @@ import com.bumptech.glide.Glide;
 import com.example.androidpracticaltest.ExpenseDetails.ExpenseAPI.ExpenseMyArray;
 import com.example.androidpracticaltest.R;
 import com.example.androidpracticaltest.RegistationAPI.ApiClient;
-import com.example.androidpracticaltest.RegistationAPI.MyArray;
 import com.example.androidpracticaltest.RegistationAPI.RegistrationServise;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -50,6 +48,7 @@ public class ExpenseDetailsScreen extends AppCompatActivity implements View.OnCl
     ImageView ivSelectedImage;
     Gson gson = new Gson();
     Calendar calendar = Calendar.getInstance();
+    int expenseTypeId ;
 
 
     @Override
@@ -75,7 +74,7 @@ public class ExpenseDetailsScreen extends AppCompatActivity implements View.OnCl
     }
 
     private void getExpenseType() {
-        RegistrationServise registrationServise = ApiClient.getExpenseTypes();
+        RegistrationServise registrationServise = ApiClient.getExpenseInterceptor();
         Call<String> call = registrationServise.getExpenseTypesCall(0, "L", 10);
         call.enqueue(new Callback<String>() {
             @Override
@@ -90,6 +89,17 @@ public class ExpenseDetailsScreen extends AppCompatActivity implements View.OnCl
                     for (int i = 0; i < responseData.size(); i++) {
                         expenseTypes.add(responseData.get(i).getExpenseTypeName());
                     }
+                    spExpenseType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                            expenseTypeId = responseData.get(i).getPkID();
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> adapterView) {
+
+                        }
+                    });
                     ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ExpenseDetailsScreen.this, android.R.layout.simple_dropdown_item_1line, expenseTypes);
                     spExpenseType.setAdapter(arrayAdapter);
 
@@ -124,24 +134,50 @@ public class ExpenseDetailsScreen extends AppCompatActivity implements View.OnCl
 
     private void saveExpense() {
 
-        RegistrationServise registrationServise = ApiClient.getExpenseTypes();
-        Call<String> call = registrationServise.saveData(0, "2022-08-31",10,100,"remarks","","","Admin",10,"logo");
+        RegistrationServise registrationServise = ApiClient.getExpenseInterceptor();
+        Call<String> call = registrationServise.saveImage(0,expenseTypeId,"Admin",10,"logo","");
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 if (response.isSuccessful() && response.body() != "") {
-                    Type listType =
-                            new TypeToken<ArrayList<ExpenseMyArray>>() {
-                            }.getType();
-                    String root = response.body().replaceAll("\\s", "\\");
-                    List<ExpenseMyArray> responseData = gson.fromJson(root, listType);
-                    List<String> expenseTypes = new ArrayList<>();
 
-                    for (int i = 0; i < responseData.size(); i++) {
-                        expenseTypes.add(responseData.get(i).getExpenseTypeName());
-                    }
-                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ExpenseDetailsScreen.this, android.R.layout.simple_dropdown_item_1line, expenseTypes);
-                    spExpenseType.setAdapter(arrayAdapter);
+                    String root = response.body();
+                    Toast.makeText(ExpenseDetailsScreen.this, root, Toast.LENGTH_SHORT).show();
+                    saveExpenseDetails();
+
+                } else {
+                    Toast.makeText(ExpenseDetailsScreen.this, "Save Image Fail", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Toast.makeText(ExpenseDetailsScreen.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+
+        });
+
+
+    }
+
+    private void saveExpenseDetails() {
+
+
+        String date = tvSelectDate.getText().toString();
+        String remarks = etRemarks.getText().toString();
+        double amount = Double.parseDouble(etVoucherAmount.getText().toString());
+
+
+        RegistrationServise registrationServise = ApiClient.getExpenseInterceptor();
+        Call<String> call = registrationServise.saveData(2, 0,"2021/08/20",expenseTypeId,amount,remarks,"","","Admin",10,"logo");
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                if (response.isSuccessful() && response.body() != "") {
+
+                    String root = response.body();
+                    Toast.makeText(ExpenseDetailsScreen.this, root, Toast.LENGTH_SHORT).show();
 
                 } else {
                     Toast.makeText(ExpenseDetailsScreen.this, "Expense Types Null", Toast.LENGTH_SHORT).show();
@@ -155,7 +191,6 @@ public class ExpenseDetailsScreen extends AppCompatActivity implements View.OnCl
 
 
         });
-
     }
 
     private void selectImage() {
@@ -207,7 +242,7 @@ public class ExpenseDetailsScreen extends AppCompatActivity implements View.OnCl
         RequestBody mFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("filename", file.getName(), mFile);
 
-        RegistrationServise registrationServise = ApiClient.getExpenseTypes();
+        RegistrationServise registrationServise = ApiClient.getExpenseInterceptor();
         Call<String> call = registrationServise.uploadImage(10, "admin", 0, fileToUpload);
         call.enqueue(new Callback<String>() {
             @Override
@@ -216,7 +251,6 @@ public class ExpenseDetailsScreen extends AppCompatActivity implements View.OnCl
 
                     String root = response.body();
                     Toast.makeText(ExpenseDetailsScreen.this, root, Toast.LENGTH_SHORT).show();
-
                 } else {
                     Toast.makeText(ExpenseDetailsScreen.this, "Image Upload Error", Toast.LENGTH_SHORT).show();
                 }
@@ -226,8 +260,6 @@ public class ExpenseDetailsScreen extends AppCompatActivity implements View.OnCl
             public void onFailure(Call<String> call, Throwable t) {
                 Toast.makeText(ExpenseDetailsScreen.this, t.getMessage(), Toast.LENGTH_SHORT).show();
             }
-
-
         });
     }
 }

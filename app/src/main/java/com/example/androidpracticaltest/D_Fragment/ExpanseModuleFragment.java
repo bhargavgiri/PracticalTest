@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -19,7 +18,6 @@ import com.example.androidpracticaltest.ExpenseDetails.ExpenseDetailsScreen;
 import com.example.androidpracticaltest.R;
 import com.example.androidpracticaltest.RegistationAPI.ApiClient;
 import com.example.androidpracticaltest.RegistationAPI.RegistrationServise;
-import com.example.androidpracticaltest.RegistrationPage;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -48,25 +46,12 @@ public class ExpanseModuleFragment extends Fragment {
 
         lvExpenseList = view.findViewById(R.id.lvExpenseList);
 
-        List<String> expenseList = new ArrayList<>();
-        expenseList.add("Expense_1");
-
-        ArrayAdapter<String> arrayAdapter=new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1,expenseList);
-        lvExpenseList.setAdapter(arrayAdapter);
-        lvExpenseList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-               if (i==0){
-                   startActivity(new Intent(getContext(), ExpenseDetailsScreen.class));
-               }
-            }
-        });
         getExpenseType();
         return view;
     }
 
     private void getExpenseType() {
-        RegistrationServise registrationServise = ApiClient.getExpenseTypes();
+        RegistrationServise registrationServise = ApiClient.getExpenseInterceptor();
         Call<String> call = registrationServise.getExpansListing(0, 1, 10,10);
         call.enqueue(new Callback<String>() {
             @Override
@@ -81,8 +66,13 @@ public class ExpanseModuleFragment extends Fragment {
                     for (int i = 0; i < responseData.size(); i++) {
                         expenseTypes.add(responseData.get(i).getExpenseTypeName());
                     }
-                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, expenseTypes);
+                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, expenseTypes);
                     lvExpenseList.setAdapter(arrayAdapter);
+                    lvExpenseList.setOnItemClickListener((adapterView, view, i, l) -> {
+                        if (i==0){
+                            startActivity(new Intent(getContext(), ExpenseDetailsScreen.class));
+                        }
+                    });
 
                 } else {
                     Toast.makeText(getContext(), "Expense Types Null", Toast.LENGTH_SHORT).show();

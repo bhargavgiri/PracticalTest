@@ -28,7 +28,7 @@ public class ApiClient {
         return registrationServise;
     }
 
-    public  static RegistrationServise getExpenseTypes()
+    public  static RegistrationServise getExpenseInterceptor()
     {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -56,11 +56,10 @@ public class ApiClient {
                 .writeTimeout(15, TimeUnit.SECONDS)
                 .build();
         registrationServise = new Retrofit.Builder()
-                .baseUrl("http://122.170.108.107:89/Expense/2")
+                .baseUrl("http://122.170.108.107:89/Expense/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(client)
                 .build().create(RegistrationServise.class);
-
         return registrationServise;
     }
     public  static RegistrationServise getExpansListing() {
