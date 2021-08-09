@@ -30,6 +30,7 @@ import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -164,13 +165,14 @@ public class ExpenseDetailsScreen extends AppCompatActivity implements View.OnCl
     private void saveExpenseDetails() {
 
 
+
         String date = tvSelectDate.getText().toString();
         String remarks = etRemarks.getText().toString();
         double amount = Double.parseDouble(etVoucherAmount.getText().toString());
 
 
         RegistrationServise registrationServise = ApiClient.getExpenseInterceptor();
-        Call<String> call = registrationServise.saveData(2, 0,"2021/08/20",expenseTypeId,amount,remarks,"","","Admin",10,"logo");
+        Call<String> call = registrationServise.saveData(2, 0,date,expenseTypeId,amount,remarks,"","","Admin",10,"logo");
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -207,7 +209,7 @@ public class ExpenseDetailsScreen extends AppCompatActivity implements View.OnCl
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, monthOfYear);
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            String myFormat = "dd/MM/yyyy"; //In which you need put here
+            String myFormat = "yyyy-MM-dd"; //In which you need put here
             SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.ENGLISH);
             tvSelectDate.setText(sdf.format(calendar.getTime()));
         };
